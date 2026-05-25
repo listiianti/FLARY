@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('Id_User');
-            $table->string('Username', 100)->unique();
-            $table->string('Password', 255);
-            $table->string('Email', 150)->unique();
-            $table->string('NamaLengkap', 200);
-            $table->text('Alamat')->nullable();
-            $table->timestamps();
+    
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');             // <-- PASTIKAN BARIS INI ADA!
+        $table->string('email')->unique();
+        $table->string('username')->unique(); // Kolom username yang kita bahas sebelumnya
+        $table->timestamp('email_verified_at')->nullable();
+        $table->string('password');
+        $table->text('alamat')->nullable();   // Kolom alamat
+        $table->rememberToken();
+        $table->timestamps();
+    });
 
-            
-        });
+    // Biasanya di bawahnya ada Schema::create untuk password_reset_tokens dan sessions, biarkan saja.
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

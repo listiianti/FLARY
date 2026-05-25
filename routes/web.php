@@ -8,15 +8,26 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
-    return view('Auth.login');
+    return view('auth.login');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/register', function () {
-    return view('Auth.register');
+    return view('auth.register');
 })->name('register');
 
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+// Halaman Login diakses lewat url /login
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Halaman Beranda diakses lewat url /beranda setelah login
+Route::get('/beranda', function () {
+    return view('auth.beranda');
+})->middleware(['auth'])->name('beranda');

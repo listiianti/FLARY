@@ -18,7 +18,8 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($request->only('username', 'password'))) {
-            return redirect('/dashboard');
+            // 🌟 DIUBAH: Mengalihkan langsung ke rute /beranda
+            return redirect()->intended('/beranda');
         }
 
         return back()->with('error', 'Username atau Password salah');
@@ -35,7 +36,8 @@ class AuthController extends Controller
             'alamat' => 'required'
         ]);
 
-        User::create([
+        // Membuat user baru di database
+        $user = User::create([
             'name' => $request->nama,
             'email' => $request->email,
             'username' => $request->username,
@@ -43,7 +45,12 @@ class AuthController extends Controller
             'alamat' => $request->alamat,
         ]);
 
-        return redirect('/login')->with('success', 'Registrasi berhasil');
+        // 🌟 OPSIONAL/BONUS: Mengotomatiskan login setelah sukses register
+        // Jadi user tidak perlu ribet mengisi form login lagi
+        Auth::login($user);
+
+        // 🌟 DIUBAH: Langsung antarkan user baru ke halaman /beranda
+        return redirect('/beranda')->with('success', 'Registrasi berhasil dan otomatis login!');
     }
 
     // LOGOUT
