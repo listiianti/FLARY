@@ -32,7 +32,7 @@ class AuthController extends Controller
             'nama' => 'required',
             'email' => 'required|email|unique:users,email',
             'username' => 'required|unique:users,username',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:8|confirmed',
             'alamat' => 'required'
         ]);
 

@@ -1,96 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
 
-    <!-- FONT (FIX) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
         }
 
-        body {
-            height: 100vh;
-            background: linear-gradient(135deg, #0a0f5a, #1b2cc1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        body{
+            min-height:100vh;
+            /* 🌟 BG SAMA: Menggabungkan gradien transparan biru gelap dengan gambar perpustakaan */
+            background: linear-gradient(135deg, rgba(10, 15, 90, 0.8), rgba(27, 44, 193, 0.8)), 
+                        url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Mencegah background bergeser saat di-scroll jika form panjang */
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding: 20px 0;
         }
 
-        .register-box {
-            width: 380px;
-            background: #e6e6e6;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .register-box{
+            width:420px; /* Sedikit lebih lebar dari login box karena field form register lebih banyak */
+            background: rgba(255, 255, 255, 0.92);
+            padding:35px;
+            border-radius:12px;
+            text-align:center;
+            box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
         }
 
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, #c86dd7, #5ffbf1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        h2{
+            margin-bottom:20px;
+            color:#222;
+            font-weight: 600;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            outline: none;
-            transition: 0.2s;
+        .form-control{
+            width:100%;
+            padding:11px 12px;
+            margin:8px 0;
+            border-radius:6px;
+            border:1px solid #ccc;
+            outline:none;
+            font-size:14px;
+            transition:0.3s;
+            background: rgba(255, 255, 255, 0.8);
         }
 
-        .form-control:focus {
-            border-color: #5ffbf1;
-            box-shadow: 0 0 5px rgba(95,251,241,0.5);
+        .form-control:focus{
+            border-color:#1b2cc1;
+            box-shadow:0 0 5px rgba(27, 44, 193, 0.3);
         }
 
-        textarea.form-control {
-            resize: none;
-            height: 60px;
+        .btn-register{
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            border:none;
+            border-radius:6px;
+            background: linear-gradient(90deg, #6200ea, #1b2cc1);
+            color:white;
+            font-size:16px;
+            font-weight: 500;
+            cursor:pointer;
+            transition:0.3s;
+            box-shadow: 0 4px 15px rgba(27, 44, 193, 0.2);
         }
 
-        .btn-register {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: none;
-            background: linear-gradient(90deg, #c86dd7, #5ffbf1);
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s;
+        .btn-register:hover{
+            opacity:0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(27, 44, 193, 0.3);
         }
 
-        .btn-register:hover {
-            opacity: 0.9;
+        .error-message{
+            color: red;
+            font-size: 12px;
+            text-align: left;
+            margin-top: -5px;
+            margin-bottom: 5px;
+            display: block;
         }
 
-        .login-link {
-            margin-top: 15px;
+        p{
+            margin-top:18px;
+            color:#333;
             font-size: 14px;
         }
 
-        .login-link a {
-            color: blue;
-            text-decoration: none;
+        a{
+            color:#1b2cc1;
+            text-decoration:none;
+            font-weight: 500;
         }
 
-        .error {
-            color: red;
-            font-size: 13px;
+        a:hover{
+            text-decoration:underline;
         }
     </style>
 </head>
@@ -98,32 +114,39 @@
 
 <div class="register-box">
 
-    <div class="title">Perpustakaan Digital</div>
-
-    {{-- ERROR --}}
-    @if ($errors->any())
-        <div class="error">
-            @foreach ($errors->all() as $error)
-                <div>{{ $error }}</div>
-            @endforeach
-        </div>
-    @endif
+    <h2>Daftar Akun</h2>
 
     <form method="POST" action="{{ url('/register') }}">
         @csrf
 
-        <input type="text" name="nama" class="form-control" placeholder="Nama Lengkap" required>
-        <input type="email" name="email" class="form-control" placeholder="Email" required>
-        <input type="text" name="username" class="form-control" placeholder="Username" required>
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <input type="text" name="nama" class="form-control" placeholder="Nama Lengkap" value="{{ old('nama') }}" required>
+        @error('nama') <span class="error-message">{{ $message }}</span> @enderror
+
+        <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required>
+        @error('email') <span class="error-message">{{ $message }}</span> @enderror
+
+        <input type="text" name="username" class="form-control" placeholder="Username" value="{{ old('username') }}" required>
+        @error('username') <span class="error-message">{{ $message }}</span> @enderror
+
+        <input type="text" name="alamat" class="form-control" placeholder="Alamat Rumah" value="{{ old('alamat') }}" required>
+        @error('alamat') <span class="error-message">{{ $message }}</span> @enderror
+
+        <input type="password" name="password" class="form-control" placeholder="Password (Min. 8 Karakter)" required>
+        @error('password') <span class="error-message">{{ $message }}</span> @enderror
+
         <input type="password" name="password_confirmation" class="form-control" placeholder="Konfirmasi Password" required>
-        <textarea name="alamat" class="form-control" placeholder="Alamat" required></textarea>
 
-        <button type="submit" class="btn-register">REGISTER</button>
+        <button type="submit" class="btn-register">
+            REGISTER
+        </button>
 
-        <div class="login-link">
-            Sudah punya akun? <a href="{{ url('/login') }}">Login</a>
-        </div>
+        <p>
+            Sudah punya akun? 
+            <a href="{{ url('/login') }}">
+                Login di sini
+            </a>
+        </p>
+
     </form>
 
 </div>

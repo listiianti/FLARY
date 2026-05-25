@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 
-    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -18,7 +17,12 @@
 
         body{
             height:100vh;
-            background:linear-gradient(135deg,#0a0f5a,#1b2cc1);
+            /* 🌟 DIUBAH: Menggabungkan gradien transparan dengan gambar latar belakang */
+            background: linear-gradient(135deg, rgba(10, 15, 90, 0.8), rgba(27, 44, 193, 0.8)), 
+                        url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display:flex;
             justify-content:center;
             align-items:center;
@@ -26,16 +30,19 @@
 
         .login-box{
             width:380px;
-            background:#e6e6e6;
+            /* 🌟 MODIFIKASI: Mengubah background menjadi putih semi-transparan (efek glassmorphism ringan) agar menyatu dengan background */
+            background: rgba(255, 255, 255, 0.92);
             padding:35px;
             border-radius:12px;
             text-align:center;
-            box-shadow:0 5px 15px rgba(0,0,0,0.25);
+            box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px); /* Memberikan efek blur pada background di belakang kotak login */
         }
 
         h2{
             margin-bottom:25px;
             color:#222;
+            font-weight: 600;
         }
 
         .form-control{
@@ -47,11 +54,12 @@
             outline:none;
             font-size:15px;
             transition:0.3s;
+            background: rgba(255, 255, 255, 0.8);
         }
 
         .form-control:focus{
-            border-color:#5ffbf1;
-            box-shadow:0 0 5px rgba(95,251,241,0.5);
+            border-color:#1b2cc1;
+            box-shadow:0 0 5px rgba(27, 44, 193, 0.3);
         }
 
         .btn-login{
@@ -60,30 +68,37 @@
             margin-top:15px;
             border:none;
             border-radius:6px;
-            background:linear-gradient(90deg,#c86dd7,#5ffbf1);
+            background: linear-gradient(90deg, #6200ea, #1b2cc1);
             color:white;
             font-size:16px;
+            font-weight: 500;
             cursor:pointer;
             transition:0.3s;
+            box-shadow: 0 4px 15px rgba(27, 44, 193, 0.2);
         }
 
         .btn-login:hover{
-            opacity:0.9;
+            opacity:0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(27, 44, 193, 0.3);
         }
 
         .error{
             color:red;
             margin-bottom:10px;
+            font-size: 14px;
         }
 
         p{
             margin-top:18px;
             color:#333;
+            font-size: 14px;
         }
 
         a{
-            color:blue;
+            color:#1b2cc1;
             text-decoration:none;
+            font-weight: 500;
         }
 
         a:hover{
