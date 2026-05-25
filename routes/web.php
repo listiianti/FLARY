@@ -7,27 +7,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Halaman Login
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
 
+// Halaman Register
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
 Route::post('/register', [AuthController::class, 'register']);
 
+// Proses Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
-// Halaman Login diakses lewat url /login
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-// Halaman Beranda diakses lewat url /beranda setelah login
+// Halaman Beranda (Hanya bisa diakses jika sudah login karena menggunakan middleware auth)
 Route::get('/beranda', function () {
     return view('auth.beranda');
 })->middleware(['auth'])->name('beranda');

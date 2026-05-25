@@ -18,7 +18,7 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($request->only('username', 'password'))) {
-            // 🌟 DIUBAH: Mengalihkan langsung ke rute /beranda
+            // JIKA BERHASIL: Langsung diarahkan ke halaman beranda
             return redirect()->intended('/beranda');
         }
 
@@ -37,7 +37,7 @@ class AuthController extends Controller
         ]);
 
         // Membuat user baru di database
-        $user = User::create([
+        User::create([
             'name' => $request->nama,
             'email' => $request->email,
             'username' => $request->username,
@@ -45,12 +45,8 @@ class AuthController extends Controller
             'alamat' => $request->alamat,
         ]);
 
-        // 🌟 OPSIONAL/BONUS: Mengotomatiskan login setelah sukses register
-        // Jadi user tidak perlu ribet mengisi form login lagi
-        Auth::login($user);
-
-        // 🌟 DIUBAH: Langsung antarkan user baru ke halaman /beranda
-        return redirect('/beranda')->with('success', 'Registrasi berhasil dan otomatis login!');
+        // JIKA BERHASIL: Langsung diarahkan ke halaman login (sesuai request)
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login menggunakan akun Anda.');
     }
 
     // LOGOUT
