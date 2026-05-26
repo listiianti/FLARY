@@ -6,25 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-    
-    Schema::create('users', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');             // <-- PASTIKAN BARIS INI ADA!
-        $table->string('email')->unique();
-        $table->string('username')->unique(); // Kolom username yang kita bahas sebelumnya
-        $table->timestamp('email_verified_at')->nullable();
-        $table->string('password');
-        $table->text('alamat')->nullable();   // Kolom alamat
-        $table->rememberToken();
-        $table->timestamps();
-    });
+        Schema::create('users', function (Blueprint $table) {
+            $table->id(); // PAKAI id DEFAULT LARAVEL
 
-    // Biasanya di bawahnya ada Schema::create untuk password_reset_tokens dan sessions, biarkan saja.
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('username')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->text('alamat')->nullable();
+
+            $table->rememberToken();
+            $table->timestamps();
+        });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -42,9 +38,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
@@ -52,4 +45,3 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
     }
 };
-

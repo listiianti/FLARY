@@ -41,6 +41,14 @@ Route::middleware(['auth'])->group(function () {
         return view('buku.index'); 
     })->name('buku.index');
 
+    Route::get('/riwayat', function () {
+        return view('buku.riwayat'); 
+    })->name('buku.riwayat');
+
+    //koleksi aku
+    Route::get('/koleksi', function () {
+    return view('buku.koleksi');
+    })->name('buku.koleksi');
 
 
 });
