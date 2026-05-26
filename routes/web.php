@@ -41,14 +41,6 @@ Route::middleware(['auth'])->group(function () {
         return view('buku.index'); 
     })->name('buku.index');
 
-    // RUTE BARU: Halaman Detail Buku
-    Route::get('/buku/{id}', function ($id) {
-        return view('buku.detail', ['id' => $id]); 
-    })->name('buku.detail');
 
-    // RUTE BARU: Proses Kirim Form Pinjam Buku (POST)
-    Route::post('/pinjam-buku/{id}', function ($id) {
-        return back()->with('success', 'Buku berhasil diajukan untuk dipinjam!');
-    })->name('buku.pinjam');
 
 });
