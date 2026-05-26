@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Models\Buku; // 🌟 1. WAJIB TAMBAHKAN INI agar Laravel tahu kita mau ambil data Buku
 
 // 1. Halaman Landing Page Utama
 Route::get('/', function () {
@@ -23,7 +24,8 @@ Route::get('/register', function () {
 Route::post('/register', [AuthController::class, 'register']);
 
 // 4. Proses Logout
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Catatan: Di blade Jelajah Buku kita pakai Link biasa, jadi ganti ke GET agar tidak error saat diklik tombol keluar
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // ==========================================
@@ -36,11 +38,12 @@ Route::middleware(['auth'])->group(function () {
         return view('beranda');
     })->name('beranda');
 
-    // 🌟 RUTE BARU: Halaman Katalog/Jelajah Buku
+    // 🌟 RUTE BARU: Halaman Katalog/Jelajah Buku (SUDAH DIPERBAIKI)
     Route::get('/buku', function () {
-        return view('buku.index'); 
+        $bukus = Buku::all(); // 🌟 2. Ambil semua data buku dari database/seeder
+        
+        // 🌟 3. Lempar variabel $bukus ke dalam halaman Blade
+        return view('buku.index', compact('bukus')); 
     })->name('buku.index');
-
-
 
 });

@@ -24,7 +24,7 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Sidebar Styling (Sama dengan Beranda agar Konsisten) */
+        /* Sidebar Styling */
         .sidebar {
             width: 280px;
             min-height: 100vh;
@@ -65,6 +65,7 @@
             background-color: #ffffff;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         .book-card:hover {
@@ -74,38 +75,47 @@
 
         .book-cover-wrapper {
             position: relative;
-            height: 260px;
-            background-color: #eee;
+            height: 240px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            padding: 20px;
+            color: #2c3e50;
+            text-align: center;
         }
 
-        .book-cover {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
+        .book-icon {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            opacity: 0.85;
+            color: #6200ea;
         }
 
-        .book-card:hover .book-cover {
-            transform: scale(1.06);
-        }
-
-        /* Badge Kategori */
+        /* Badge Kategori & Stok */
         .category-badge {
             position: absolute;
             top: 15px;
             left: 15px;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(4px);
-            color: #333;
+            color: #6200ea;
             font-weight: 600;
             font-size: 11px;
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-radius: 30px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .stock-badge {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 8px;
         }
 
         /* Search & Filter Section */
@@ -120,19 +130,6 @@
         .search-box:focus {
             border-color: #6200ea;
             box-shadow: 0 0 0 0.25rem rgba(98, 0, 234, 0.1);
-        }
-
-        .filter-btn {
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active {
-            background: var(--primary-gradient);
-            color: #fff;
-            border-color: transparent;
         }
     </style>
 </head>
@@ -150,7 +147,7 @@
             </div>
             
             <div class="d-flex align-items-center p-3 mb-4 bg-light rounded-4">
-                <div class="bg-white shadow-sm text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: linear-gradient(135deg, #ff758f, #ff7fa5) !important; color: white !important;">
+                <div class="shadow-sm rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: linear-gradient(135deg, #ff758f, #ff7fa5); color: white;">
                     <i class="fas fa-user-astronaut"></i>
                 </div>
                 <div class="user-info">
@@ -175,4 +172,58 @@
             </ul>
 
             <div class="border-top pt-3">
-                <a href="#" class="nav-link logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <a href="{{ route('logout') }}" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt me-3"></i> Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-grow-1 p-5" style="max-height: 100vh; overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">Jelajah Koleksi Buku</h2>
+                    <p class="text-muted small">Temukan buku-buku terbaik pilihan Seeder Database kami</p>
+                </div>
+                <div class="w-25">
+                    <input type="text" class="form-control search-box" placeholder="Cari judul atau pengarang...">
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+                @forelse($bukus as $buku)
+                    <div class="col">
+                        <div class="card book-card h-100">
+                            <div class="book-cover-wrapper">
+                                <span class="category-badge">ID: #{{ $buku->id_buku }}</span>
+                                <i class="fas fa-book book-icon"></i>
+                                <span class="badge {{ $buku->stok > 10 ? 'bg-success' : 'bg-warning' }} stock-badge">
+                                    Stok: {{ $buku->stok }}
+                                </span>
+                            </div>
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title fw-bold text-dark mb-1 fs-6 text-truncate" title="{{ $buku->judul }}">
+                                    {{ $buku->judul }}
+                                </h5>
+                                <p class="text-secondary small mb-3">
+                                    <i class="fas fa-pen-nib me-1" style="font-size: 11px;"></i> {{ $buku->pengarang }}
+                                </p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <span class="text-muted small">Tahun {{ $buku->tahun_terbit }}</span>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 12px; font-weight: 600;">
+                                        Pinjam
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Belum ada data buku. Silakan jalankan seeder terlebih dahulu!</p>
+                    </div>
+                @endforelse
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
