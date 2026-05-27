@@ -6,14 +6,32 @@ use Illuminate\Database\Eloquent\Model;
 
 class Buku extends Model
 {
-    // Tentukan primary key kustom sesuai diagram
-    protected $primaryKey = 'id_buku';
+    protected $table = 'buku';
 
-    // Atribut yang diizinkan untuk pengisian massal (Mass Assignment)
     protected $fillable = [
         'judul',
-        'pengarang',
+        'penulis',
+        'penerbit',
         'tahun_terbit',
-        'stok'
     ];
+
+    public function kategori()
+    {
+        return $this->belongsToMany(KategoriBuku::class, 'kategoribuku_relasi', 'id_buku', 'id_kategori');
+    }
+
+    public function peminjaman()
+    {
+        return $this->hasMany(Peminjaman::class, 'id_buku');
+    }
+
+    public function koleksiPribadi()
+    {
+        return $this->hasMany(KoleksiPribadi::class, 'id_buku');
+    }
+
+    public function ulasan()
+    {
+        return $this->hasMany(UlasanBuku::class, 'id_buku');
+    }
 }

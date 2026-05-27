@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Models\Buku; // 🌟 1. WAJIB TAMBAHKAN INI agar Laravel tahu kita mau ambil data Buku
+use Illuminate\Http\Request; // 🌟 TAMBAHKAN INI untuk menangkap data request dari search bar
 
 // 1. Halaman Landing Page Utama
 Route::get('/', function () {
@@ -38,12 +39,47 @@ Route::middleware(['auth'])->group(function () {
         return view('beranda');
     })->name('beranda');
 
-    // 🌟 RUTE BARU: Halaman Katalog/Jelajah Buku (SUDAH DIPERBAIKI)
+    // 🌟 RUTE 1: Tampilan Utama Halaman Katalog/Jelajah Buku (Hanya diakses pertama kali lewat browser)
     Route::get('/buku', function () {
-        $bukus = Buku::all(); // 🌟 2. Ambil semua data buku dari database/seeder
-        
-        // 🌟 3. Lempar variabel $bukus ke dalam halaman Blade
+        $bukus = Buku::with('kategori')->get(); // Ambil semua data buku beserta kategorinya
         return view('buku.index', compact('bukus')); 
     })->name('buku.index');
+
+    // 🌟 RUTE 2: Khusus Melayani Search Bar & Filter AJAX (Anti-Mirror / Anti-Double Layout)
+    Route::get('/buku/search', function (Request $request) {
+        $search = $request->input('search');
+        $kategori = $request->input('kategori');
+
+        $query = Buku::query()->with('kategori');
+
+        // Saring kata kunci teks
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('pengarang', 'like', "%{$search}%"); // Sesuaikan jika nama kolomnya 'penulis'
+            });
+        }
+
+        // Saring tombol kategori
+        if ($kategori) {
+            $query->whereHas('kategori', function($q) use ($kategori) {
+                $q->where('nama_kategori', 'like', "%{$kategori}%");
+            });
+        }
+
+        $bukus = $query->get();
+
+        // Kembalikan HANYA potongan list kartu buku saja tanpa membawa layout induk/sidebar!
+        return view('buku._list', compact('bukus'));
+    })->name('buku.search');
+
+    Route::get('/riwayat', function () {
+        return view('buku.riwayat'); 
+    })->name('buku.riwayat');
+
+    // Koleksi aku
+    Route::get('/koleksi', function () {
+        return view('buku.koleksi');
+    })->name('buku.koleksi');
 
 });
