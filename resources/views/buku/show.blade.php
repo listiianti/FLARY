@@ -65,6 +65,9 @@
         font-size: 15px;
         width: 100%;
         transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
     }
 
     .btn-pinjam:hover {
@@ -205,6 +208,14 @@
         Kembali ke Daftar Buku
     </a>
 
+    {{-- SUKSES PINJAM --}}
+    @if(session('sukses_pinjam'))
+        <div class="alert alert-success rounded-3 mb-4">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ session('sukses_pinjam') }}
+        </div>
+    @endif
+
     {{-- DETAIL BUKU --}}
     <div class="detail-card p-4 p-md-5 mb-4">
         <div class="row g-5">
@@ -285,12 +296,12 @@
                 {{-- TOMBOL AKSI --}}
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <button class="btn-pinjam">
+                        <a href="{{ route('pinjam.form', $buku->id) }}" class="btn-pinjam">
                             <i class="fas fa-book-reader me-2"></i>
                             Pinjam Buku
-                        </button>
+                        </a>
                     </div>
-                 <div class="col-md-6">
+                    <div class="col-md-6">
                         @php
                             $sudahDikoleksi = \App\Models\KoleksiPribadi::where('id_user', Auth::id())
                                                 ->where('id_buku', $buku->id)

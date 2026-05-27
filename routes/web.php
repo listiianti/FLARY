@@ -62,11 +62,10 @@ Route::middleware(['auth'])->group(function () {
 
         if ($kategori) {
             $query->whereHas('kategori', function ($q) use ($kategori) {
-                $q->where('nama_kategori', 'like', "%{$kategori}%");
+                $q->where('nama_kategori', $kategori);
             });
         }
 
-        // Prioritaskan buku yang judulnya diawali huruf pencarian
         if ($search) {
             $query->orderByRaw("CASE WHEN judul LIKE ? THEN 0 ELSE 1 END", [$search . '%']);
         }
@@ -117,6 +116,35 @@ Route::middleware(['auth'])->group(function () {
 
         return response()->json($bukus);
     })->name('buku.suggestions');
+
+    // ── Halaman form pinjam (HARUS di atas /buku/{id}) ──
+    Route::get('/buku/{id}/pinjam', function ($id) {
+        $buku = Buku::with('kategori')->findOrFail($id);
+        return view('buku.pinjam', compact('buku'));
+    })->name('pinjam.form');
+
+    // Proses simpan pinjam
+    Route::post('/buku/{id}/pinjam', function (Request $request, $id) {
+        $request->validate([
+            'tanggal_pinjam' => 'required|date|after_or_equal:today',
+            'durasi'         => 'required|integer|in:3,7,14',
+        ]);
+
+        $tanggalKembali = \Carbon\Carbon::parse($request->tanggal_pinjam)
+                            ->addDays((int) $request->durasi)
+                            ->format('Y-m-d');
+
+        \App\Models\Peminjaman::create([
+            'id_user'         => Auth::id(),
+            'id_buku'         => $id,
+            'tanggal_pinjam'  => $request->tanggal_pinjam,
+            'tanggal_kembali' => $tanggalKembali,
+            'status'          => 'dipinjam',
+        ]);
+
+        return redirect()->route('buku.show', $id)
+                         ->with('sukses_pinjam', 'Buku berhasil dipinjam! Kembalikan sebelum ' . \Carbon\Carbon::parse($tanggalKembali)->translatedFormat('d F Y') . '.');
+    })->name('pinjam.store');
 
     // Detail buku
     Route::get('/buku/{id}', function ($id) {
