@@ -17,8 +17,12 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($request->only('username', 'password'))) {
-            // JIKA BERHASIL: Langsung diarahkan ke halaman beranda
+        // Cari user berdasarkan username
+        $user = User::where('username', $request->username)->first();
+
+        // Cek apakah user ada dan password cocok
+        if ($user && Hash::check($request->password, $user->password)) {
+            Auth::login($user);
             return redirect()->intended('/beranda');
         }
 

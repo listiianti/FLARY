@@ -1,9 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
-use App\Models\Buku; // 🌟 1. WAJIB TAMBAHKAN INI agar Laravel tahu kita mau ambil data Buku
-use Illuminate\Http\Request; // 🌟 TAMBAHKAN INI untuk menangkap data request dari search bar
+use App\Models\Buku;
+use App\Models\UlasanBuku;
+use App\Models\KoleksiPribadi;
+use Illuminate\Http\Request;
 
 // 1. Halaman Landing Page Utama
 Route::get('/', function () {
@@ -25,61 +28,161 @@ Route::get('/register', function () {
 Route::post('/register', [AuthController::class, 'register']);
 
 // 4. Proses Logout
-// Catatan: Di blade Jelajah Buku kita pakai Link biasa, jadi ganti ke GET agar tidak error saat diklik tombol keluar
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-
 
 // ==========================================
 // RUTE YANG WAJIB LOGIN (MENGGUNAKAN AUTH)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
-    // Halaman Beranda Utama (Mengarah ke folder auth/beranda.blade.php)
+    // Beranda
     Route::get('/beranda', function () {
         return view('beranda');
     })->name('beranda');
 
-    // 🌟 RUTE 1: Tampilan Utama Halaman Katalog/Jelajah Buku (Hanya diakses pertama kali lewat browser)
+    // Daftar semua buku
     Route::get('/buku', function () {
-        $bukus = Buku::with('kategori')->get(); // Ambil semua data buku beserta kategorinya
-        return view('buku.index', compact('bukus')); 
+        $bukus = Buku::with('kategori')->get();
+        return view('buku.index', compact('bukus'));
     })->name('buku.index');
 
-    // 🌟 RUTE 2: Khusus Melayani Search Bar & Filter AJAX (Anti-Mirror / Anti-Double Layout)
+    // Search & filter buku (AJAX)
     Route::get('/buku/search', function (Request $request) {
-        $search = $request->input('search');
+        $search   = $request->input('search');
         $kategori = $request->input('kategori');
 
         $query = Buku::query()->with('kategori');
 
-        // Saring kata kunci teks
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('judul', 'like', "%{$search}%")
-                  ->orWhere('pengarang', 'like', "%{$search}%"); // Sesuaikan jika nama kolomnya 'penulis'
+                  ->orWhere('penulis', 'like', "%{$search}%");
             });
         }
 
-        // Saring tombol kategori
         if ($kategori) {
-            $query->whereHas('kategori', function($q) use ($kategori) {
+            $query->whereHas('kategori', function ($q) use ($kategori) {
                 $q->where('nama_kategori', 'like', "%{$kategori}%");
             });
         }
 
+        // Prioritaskan buku yang judulnya diawali huruf pencarian
+        if ($search) {
+            $query->orderByRaw("CASE WHEN judul LIKE ? THEN 0 ELSE 1 END", [$search . '%']);
+        }
+
         $bukus = $query->get();
 
-        // Kembalikan HANYA potongan list kartu buku saja tanpa membawa layout induk/sidebar!
         return view('buku._list', compact('bukus'));
     })->name('buku.search');
 
-    Route::get('/riwayat', function () {
-        return view('buku.riwayat'); 
-    })->name('buku.riwayat');
+    // Autocomplete suggestions
+    Route::get('/buku/suggestions', function (Request $request) {
+        $search   = $request->input('search');
+        $kategori = $request->input('kategori');
 
-    // Koleksi aku
+        if (!$search) return response()->json([]);
+
+        $query = Buku::query()->with('kategori');
+
+        $query->where(function ($q) use ($search) {
+            $q->where('judul', 'like', "{$search}%")
+              ->orWhere('judul', 'like', "% {$search}%")
+              ->orWhere('penulis', 'like', "{$search}%");
+        });
+
+        if ($kategori) {
+            $query->whereHas('kategori', function ($q) use ($kategori) {
+                $q->where('nama_kategori', $kategori);
+            });
+        }
+
+        $query->orderByRaw("
+            CASE
+                WHEN judul LIKE ? THEN 0
+                WHEN judul LIKE ? THEN 1
+                ELSE 2
+            END
+        ", [$search . '%', '% ' . $search . '%'])
+        ->limit(6);
+
+        $bukus = $query->get()->map(function ($b) {
+            return [
+                'id'       => $b->id,
+                'judul'    => $b->judul,
+                'penulis'  => $b->penulis,
+                'kategori' => $b->kategori->first()->nama_kategori ?? 'Umum',
+            ];
+        });
+
+        return response()->json($bukus);
+    })->name('buku.suggestions');
+
+    // Detail buku
+    Route::get('/buku/{id}', function ($id) {
+        $buku = Buku::with(['kategori', 'ulasan.user'])->findOrFail($id);
+        return view('buku.show', compact('buku'));
+    })->name('buku.show');
+
+    // Simpan ulasan
+    Route::post('/buku/{id}/ulasan', function (Request $request, $id) {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'ulasan' => 'required|string|min:5',
+        ]);
+
+        UlasanBuku::create([
+            'id_user' => Auth::id(),
+            'id_buku' => $id,
+            'rating'  => $request->rating,
+            'ulasan'  => $request->ulasan,
+        ]);
+
+        return redirect()->route('buku.show', $id)
+                         ->with('sukses_ulasan', 'Ulasan berhasil dikirim!');
+    })->name('ulasan.store');
+
+    // Koleksi saya
     Route::get('/koleksi', function () {
-        return view('buku.koleksi');
+        $koleksi = KoleksiPribadi::with('buku.kategori')
+                    ->where('id_user', Auth::id())
+                    ->get();
+        return view('buku.koleksi', compact('koleksi'));
     })->name('buku.koleksi');
+
+    // Tambah koleksi
+    Route::post('/koleksi/{id}', function ($id) {
+        $sudahAda = KoleksiPribadi::where('id_user', Auth::id())
+                    ->where('id_buku', $id)
+                    ->exists();
+
+        if ($sudahAda) {
+            return redirect()->route('buku.show', $id)
+                             ->with('error_koleksi', 'Buku sudah ada di koleksi kamu!');
+        }
+
+        KoleksiPribadi::create([
+            'id_user' => Auth::id(),
+            'id_buku' => $id,
+        ]);
+
+        return redirect()->route('buku.show', $id)
+                         ->with('sukses_koleksi', 'Buku berhasil ditambahkan ke koleksi!');
+    })->name('koleksi.store');
+
+    // Hapus koleksi
+    Route::delete('/koleksi/{id}', function ($id) {
+        KoleksiPribadi::where('id_user', Auth::id())
+            ->where('id_buku', $id)
+            ->delete();
+
+        return redirect()->route('buku.koleksi')
+                         ->with('sukses_koleksi', 'Buku berhasil dihapus dari koleksi!');
+    })->name('koleksi.destroy');
+
+    // Riwayat pinjam
+    Route::get('/riwayat', function () {
+        return view('buku.riwayat');
+    })->name('buku.riwayat');
 
 });
