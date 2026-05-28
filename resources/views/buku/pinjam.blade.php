@@ -200,6 +200,14 @@
         Kembali ke Detail Buku
     </a>
 
+    {{-- ERROR PINJAM --}}
+    @if(session('error_pinjam'))
+        <div class="alert alert-danger rounded-3 mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ session('error_pinjam') }}
+        </div>
+    @endif
+
     {{-- STEP INDICATOR --}}
     <div class="step-indicator">
         <div class="step-dot">1</div>
@@ -255,7 +263,6 @@
                 <h5 class="fw-bold mt-3 mb-1">{{ $buku->judul }}</h5>
                 <p class="text-muted small">oleh {{ $buku->penulis }}</p>
 
-                {{-- INFO BOX --}}
                 <div class="info-pinjam text-start mt-2 w-100">
                     <p class="mb-1" style="font-size: 13px; font-weight: 600; color: #6200ea;">
                         <i class="fas fa-info-circle me-2"></i>Ketentuan Pinjam
@@ -280,29 +287,20 @@
                 <form action="{{ route('pinjam.store', $buku->id) }}" method="POST">
                     @csrf
 
-                    {{-- NAMA PEMINJAM --}}
                     <div class="mb-3">
                         <label class="form-label">
                             <i class="fas fa-user me-2 text-primary"></i>Nama Peminjam
                         </label>
-                        <input type="text"
-                               class="form-control"
-                               value="{{ Auth::user()->name }}"
-                               disabled>
+                        <input type="text" class="form-control" value="{{ Auth::user()->name }}" disabled>
                     </div>
 
-                    {{-- JUDUL BUKU --}}
                     <div class="mb-3">
                         <label class="form-label">
                             <i class="fas fa-book me-2 text-primary"></i>Buku yang Dipinjam
                         </label>
-                        <input type="text"
-                               class="form-control"
-                               value="{{ $buku->judul }}"
-                               disabled>
+                        <input type="text" class="form-control" value="{{ $buku->judul }}" disabled>
                     </div>
 
-                    {{-- TANGGAL PINJAM --}}
                     <div class="mb-3">
                         <label class="form-label">
                             <i class="fas fa-calendar-check me-2 text-primary"></i>Tanggal Pinjam
@@ -318,7 +316,6 @@
                         @enderror
                     </div>
 
-                    {{-- DURASI PINJAM --}}
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="fas fa-clock me-2 text-primary"></i>Durasi Peminjaman
@@ -336,7 +333,6 @@
                         </small>
                     </div>
 
-                    {{-- TOMBOL --}}
                     <div class="row g-3 mt-1">
                         <div class="col-6">
                             <a href="{{ route('buku.show', $buku->id) }}" class="btn-batal">
@@ -378,7 +374,6 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         hitungTglKembali(3);
-
         document.querySelector('input[name="tanggal_pinjam"]').addEventListener('change', function () {
             const durasi = document.getElementById('durasi-input').value;
             hitungTglKembali(durasi);

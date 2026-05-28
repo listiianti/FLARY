@@ -216,6 +216,14 @@
         </div>
     @endif
 
+    {{-- ERROR PINJAM --}}
+    @if(session('error_pinjam'))
+        <div class="alert alert-danger rounded-3 mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ session('error_pinjam') }}
+        </div>
+    @endif
+
     {{-- DETAIL BUKU --}}
     <div class="detail-card p-4 p-md-5 mb-4">
         <div class="row g-5">
@@ -296,10 +304,22 @@
                 {{-- TOMBOL AKSI --}}
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <a href="{{ route('pinjam.form', $buku->id) }}" class="btn-pinjam">
-                            <i class="fas fa-book-reader me-2"></i>
-                            Pinjam Buku
-                        </a>
+                        @php
+                            $jumlahDipinjam = \App\Models\Peminjaman::where('id_user', Auth::id())
+                                                ->where('status', 'dipinjam')
+                                                ->count();
+                        @endphp
+                        @if($jumlahDipinjam >= 5)
+                            <button class="btn-pinjam" disabled style="opacity:0.6; cursor:not-allowed; background: #aaa;">
+                                <i class="fas fa-ban me-2"></i>
+                                Batas Pinjam Tercapai
+                            </button>
+                        @else
+                            <a href="{{ route('pinjam.form', $buku->id) }}" class="btn-pinjam">
+                                <i class="fas fa-book-reader me-2"></i>
+                                Pinjam Buku
+                            </a>
+                        @endif
                     </div>
                     <div class="col-md-6">
                         @php
@@ -371,7 +391,6 @@
                 <form action="{{ route('ulasan.store', $buku->id) }}" method="POST">
                     @csrf
 
-                    {{-- RATING BINTANG --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Rating</label>
                         <div class="star-rating">
@@ -391,7 +410,6 @@
                         @enderror
                     </div>
 
-                    {{-- TEKS ULASAN --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Ulasan Kamu</label>
                         <textarea
@@ -429,20 +447,14 @@
                     @foreach($buku->ulasan as $ulasan)
                         <div class="ulasan-card">
                             <div class="d-flex gap-3 align-items-start">
-
                                 <div class="avatar-circle">
                                     {{ strtoupper(substr($ulasan->user->name ?? 'U', 0, 1)) }}
                                 </div>
-
                                 <div class="flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <strong class="d-block">
-                                                {{ $ulasan->user->name ?? 'Pengguna' }}
-                                            </strong>
-                                            <small class="text-muted">
-                                                {{ $ulasan->created_at->diffForHumans() }}
-                                            </small>
+                                            <strong class="d-block">{{ $ulasan->user->name ?? 'Pengguna' }}</strong>
+                                            <small class="text-muted">{{ $ulasan->created_at->diffForHumans() }}</small>
                                         </div>
                                         <div>
                                             @for($i = 1; $i <= 5; $i++)
@@ -451,11 +463,8 @@
                                             @endfor
                                         </div>
                                     </div>
-                                    <p class="text-muted small mt-2 mb-0">
-                                        {{ $ulasan->ulasan }}
-                                    </p>
+                                    <p class="text-muted small mt-2 mb-0">{{ $ulasan->ulasan }}</p>
                                 </div>
-
                             </div>
                         </div>
                     @endforeach

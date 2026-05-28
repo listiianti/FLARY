@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // LOGIN
     public function login(Request $request)
     {
         $request->validate([
@@ -17,43 +16,44 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        // Cari user berdasarkan username
         $user = User::where('username', $request->username)->first();
 
-        // Cek apakah user ada dan password cocok
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
+
+            if ($user->role === 'admin') {
+                return redirect('/admin/dashboard');
+            } elseif ($user->role === 'petugas') {
+                return redirect('/petugas/dashboard');
+            }
+
             return redirect()->intended('/beranda');
         }
 
         return back()->with('error', 'Username atau Password salah');
     }
 
-    // REGISTER
     public function register(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'nama'     => 'required',
+            'email'    => 'required|email|unique:users,email',
             'username' => 'required|unique:users,username',
             'password' => 'required|min:8|confirmed',
-            'alamat' => 'required'
+            'alamat'   => 'required'
         ]);
 
-        // Membuat user baru di database
         User::create([
-            'name' => $request->nama,
-            'email' => $request->email,
+            'name'     => $request->nama,
+            'email'    => $request->email,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'alamat' => $request->alamat,
+            'alamat'   => $request->alamat,
         ]);
 
-        // JIKA BERHASIL: Langsung diarahkan ke halaman login (sesuai request)
         return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login menggunakan akun Anda.');
     }
 
-    // LOGOUT
     public function logout()
     {
         Auth::logout();
