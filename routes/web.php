@@ -282,8 +282,9 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
         return view('petugas.buku.index', compact('bukus'));
     })->name('buku.index');
 
+    // PENTING: create harus di atas {id}
     Route::get('/buku/create', function () {
-        $kategoris = \App\Models\Kategori::all();
+        $kategoris = \App\Models\KategoriBuku::all();
         return view('petugas.buku.create', compact('kategoris'));
     })->name('buku.create');
 
@@ -300,7 +301,7 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
 
     Route::get('/buku/{id}/edit', function ($id) {
         $buku      = \App\Models\Buku::with('kategori')->findOrFail($id);
-        $kategoris = \App\Models\Kategori::all();
+        $kategoris = \App\Models\KategoriBuku::all();
         return view('petugas.buku.edit', compact('buku', 'kategoris'));
     })->name('buku.edit');
 
