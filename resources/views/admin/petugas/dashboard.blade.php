@@ -44,53 +44,53 @@
 
     {{-- STATISTIK --}}
     <div class="row g-4 mb-5">
-        <div class="col-12 col-md-3">
-            <div class="card stat-card shadow-sm p-3">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm p-3 h-100">
                 <div class="card-body d-flex justify-content-between align-items-center p-2">
                     <div>
-                        <span class="d-block display-6 fw-bold text-dark mb-1">{{ $totalBuku }}</span>
+                        <span class="d-block h3 fw-bold text-dark mb-1">{{ $totalBuku }}</span>
                         <p class="text-muted small mb-0 fw-medium">Total Buku</p>
                     </div>
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary flex-shrink-0">
                         <i class="fas fa-book"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3">
-            <div class="card stat-card shadow-sm p-3">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm p-3 h-100">
                 <div class="card-body d-flex justify-content-between align-items-center p-2">
                     <div>
-                        <span class="d-block display-6 fw-bold text-dark mb-1">{{ $totalDipinjam }}</span>
+                        <span class="d-block h3 fw-bold text-dark mb-1">{{ $totalDipinjam }}</span>
                         <p class="text-muted small mb-0 fw-medium">Sedang Dipinjam</p>
                     </div>
-                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                    <div class="icon-box bg-success bg-opacity-10 text-success flex-shrink-0">
                         <i class="fas fa-book-reader"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3">
-            <div class="card stat-card shadow-sm p-3">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm p-3 h-100">
                 <div class="card-body d-flex justify-content-between align-items-center p-2">
                     <div>
-                        <span class="d-block display-6 fw-bold text-dark mb-1">{{ $totalTerlambat }}</span>
+                        <span class="d-block h3 fw-bold text-dark mb-1">{{ $totalTerlambat }}</span>
                         <p class="text-muted small mb-0 fw-medium">Terlambat</p>
                     </div>
-                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger flex-shrink-0">
                         <i class="fas fa-exclamation-circle"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3">
-            <div class="card stat-card shadow-sm p-3">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card shadow-sm p-3 h-100">
                 <div class="card-body d-flex justify-content-between align-items-center p-2">
                     <div>
-                        <span class="d-block display-6 fw-bold text-dark mb-1">{{ $totalPengguna }}</span>
+                        <span class="d-block h3 fw-bold text-dark mb-1">{{ $totalPengguna }}</span>
                         <p class="text-muted small mb-0 fw-medium">Total Peminjam</p>
                     </div>
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning flex-shrink-0">
                         <i class="fas fa-users"></i>
                     </div>
                 </div>

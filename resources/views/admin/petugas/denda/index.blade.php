@@ -74,13 +74,17 @@
                         <th>Hari Terlambat</th>
                         <th>Total Denda</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="small">
                     @forelse($denda as $i => $item)
                     <tr>
                         <td>{{ $i + 1 }}</td>
-                        <td class="fw-bold">{{ $item->user->name ?? '-' }}</td>
+                        <td>
+                            <div class="fw-bold">{{ $item->user->name ?? '-' }}</div>
+                            <div class="text-muted small">{{ $item->user->email ?? '' }}</div>
+                        </td>
                         <td>{{ $item->buku->judul ?? '-' }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_kembali)->translatedFormat('d M Y') }}</td>
                         <td><span class="badge bg-danger rounded-pill">{{ $item->hari_terlambat }} hari</span></td>
@@ -92,10 +96,88 @@
                                 <span class="badge bg-warning text-dark rounded-pill">Sudah Kembali</span>
                             @endif
                         </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button type="button"
+                                    class="btn btn-sm btn-outline-primary rounded-pill"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal-detail-{{ $item->id }}">
+                                    <i class="fas fa-eye me-1"></i>Detail
+                                </button>
+                                @if($item->status !== 'dikembalikan')
+                                <form action="{{ route('petugas.denda.lunas', $item->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <button type="submit"
+                                        class="btn btn-sm btn-success rounded-pill"
+                                        onclick="return confirm('Tandai denda ini sebagai lunas?')">
+                                        <i class="fas fa-check me-1"></i>Lunas
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </td>
                     </tr>
+
+                    {{-- MODAL DETAIL --}}
+                    <div class="modal fade" id="modal-detail-{{ $item->id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-4 border-0 shadow">
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold">Detail Peminjam</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body pt-2">
+                                    <table class="table table-borderless small mb-0">
+                                        <tr>
+                                            <td class="text-muted" width="40%">Nama</td>
+                                            <td class="fw-bold">{{ $item->user->name ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Email</td>
+                                            <td>{{ $item->user->email ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Judul Buku</td>
+                                            <td>{{ $item->buku->judul ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Tgl Pinjam</td>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->translatedFormat('d M Y') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Batas Kembali</td>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal_kembali)->translatedFormat('d M Y') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Hari Terlambat</td>
+                                            <td><span class="badge bg-danger rounded-pill">{{ $item->hari_terlambat }} hari</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Total Denda</td>
+                                            <td class="fw-bold text-danger">Rp {{ number_format($item->total_denda, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Status</td>
+                                            <td>
+                                                @if($item->status === 'terlambat')
+                                                    <span class="badge bg-danger rounded-pill">Belum Kembali</span>
+                                                @else
+                                                    <span class="badge bg-success rounded-pill">Lunas</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-3">Tidak ada denda tertunggak.</td>
+                        <td colspan="8" class="text-center text-muted py-3">Tidak ada denda tertunggak.</td>
                     </tr>
                     @endforelse
                 </tbody>

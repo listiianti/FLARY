@@ -9,10 +9,6 @@
                   <stop offset="0%" style="stop-color:#a855f7"/>
                   <stop offset="100%" style="stop-color:#ec4899"/>
                 </linearGradient>
-                <linearGradient id="bGs" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#a855f7"/>
-                  <stop offset="100%" style="stop-color:#ec4899"/>
-                </linearGradient>
               </defs>
               <g transform="translate(10, 5) scale(0.55)">
                 <ellipse cx="100" cy="175" rx="28" ry="14" fill="#e05a5a"/>
@@ -67,11 +63,8 @@
             <i class="fas fa-user"></i>
         </div>
         <div>
-            <strong class="d-block small fw-bold text-dark">
-                {{ Auth::user()->name ?? 'User' }}
-            </strong>
-            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill"
-                style="font-size:10px;">
+            <strong class="d-block small fw-bold text-dark">{{ Auth::user()->name ?? 'User' }}</strong>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size:10px;">
                 Peminjam Aktif
             </span>
         </div>
@@ -80,32 +73,27 @@
     {{-- NAVIGASI --}}
     <ul class="nav nav-pills flex-column gap-2">
         <li>
-            <a href="{{ route('beranda') }}"
-               class="nav-link {{ request()->routeIs('beranda') ? 'active' : '' }}">
+            <a href="{{ route('beranda') }}" class="nav-link {{ request()->routeIs('beranda') ? 'active' : '' }}">
                 <i class="fas fa-chart-pie me-3"></i>Beranda
             </a>
         </li>
         <li>
-            <a href="{{ route('buku.index') }}"
-               class="nav-link {{ request()->routeIs('buku.index') ? 'active' : '' }}">
+            <a href="{{ route('buku.index') }}" class="nav-link {{ request()->routeIs('buku.index') ? 'active' : '' }}">
                 <i class="fas fa-book-open me-3"></i>Jelajah Buku
             </a>
         </li>
         <li>
-            <a href="{{ route('buku.riwayat') }}"
-               class="nav-link {{ request()->routeIs('buku.riwayat') ? 'active' : '' }}">
+            <a href="{{ route('buku.riwayat') }}" class="nav-link {{ request()->routeIs('buku.riwayat') ? 'active' : '' }}">
                 <i class="fas fa-history me-3"></i>Riwayat Pinjam
             </a>
         </li>
         <li>
-            <a href="{{ route('buku.denda') }}"
-               class="nav-link {{ request()->routeIs('buku.denda') ? 'active' : '' }}">
+            <a href="{{ route('buku.denda') }}" class="nav-link {{ request()->routeIs('buku.denda') ? 'active' : '' }}">
                 <i class="fas fa-wallet me-3"></i>Denda
             </a>
         </li>
         <li>
-            <a href="{{ route('buku.koleksi') }}"
-               class="nav-link {{ request()->routeIs('buku.koleksi') ? 'active' : '' }}">
+            <a href="{{ route('buku.koleksi') }}" class="nav-link {{ request()->routeIs('buku.koleksi') ? 'active' : '' }}">
                 <i class="fas fa-heart me-3"></i>Koleksi Saya
             </a>
         </li>
@@ -113,14 +101,13 @@
 
     {{-- LOGOUT --}}
     <div class="border-top pt-3 mt-auto">
-        <a href="#"
-           class="nav-link text-danger"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <a href="#" class="nav-link text-danger" onclick="konfirmasiLogout(event, 'logout-form-peminjam')">
             <i class="fas fa-power-off me-3"></i>Logout
         </a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+        <form id="logout-form-peminjam" action="{{ route('logout') }}" method="POST" style="display:none;">
             @csrf
         </form>
     </div>
+
 
 </aside>

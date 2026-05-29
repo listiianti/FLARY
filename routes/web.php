@@ -272,58 +272,103 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
 
         $peminjaman = \App\Models\Peminjaman::with(['buku', 'user'])->latest()->take(10)->get();
 
-        return view('petugas.dashboard', compact(
+        return view('admin.petugas.dashboard', compact(
             'totalBuku', 'totalDipinjam', 'totalTerlambat', 'totalPengguna', 'peminjaman'
         ));
     })->name('dashboard');
 
     Route::get('/buku', function () {
         $bukus = \App\Models\Buku::with('kategori')->get();
-        return view('petugas.buku.index', compact('bukus'));
+        return view('admin.petugas.buku.index', compact('bukus'));
     })->name('buku.index');
 
-    // PENTING: create harus di atas {id}
     Route::get('/buku/create', function () {
         $kategoris = \App\Models\KategoriBuku::all();
-        return view('petugas.buku.create', compact('kategoris'));
+        return view('admin.petugas.buku.create', compact('kategoris'));
     })->name('buku.create');
 
+    // ✅ FIX: store dengan handle upload gambar
     Route::post('/buku', function (\Illuminate\Http\Request $request) {
         $request->validate([
             'judul'       => 'required',
             'penulis'     => 'required',
             'stok'        => 'required|integer|min:0',
             'id_kategori' => 'required',
+            'gambar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
-        \App\Models\Buku::create($request->all());
+
+        $data = $request->except(['gambar', 'id_kategori', '_token']);
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $request->file('gambar')->store('buku', 'public');
+        }
+
+        $buku = \App\Models\Buku::create($data);
+
+        if ($request->id_kategori) {
+            $buku->kategori()->sync(
+                is_array($request->id_kategori) ? $request->id_kategori : [$request->id_kategori]
+            );
+        }
+
         return redirect()->route('petugas.buku.index')->with('sukses', 'Buku berhasil ditambahkan!');
     })->name('buku.store');
 
     Route::get('/buku/{id}/edit', function ($id) {
         $buku      = \App\Models\Buku::with('kategori')->findOrFail($id);
         $kategoris = \App\Models\KategoriBuku::all();
-        return view('petugas.buku.edit', compact('buku', 'kategoris'));
+        return view('admin.petugas.buku.edit', compact('buku', 'kategoris'));
     })->name('buku.edit');
 
+    // ✅ FIX: update dengan handle upload & hapus gambar
     Route::put('/buku/{id}', function (\Illuminate\Http\Request $request, $id) {
         $request->validate([
             'judul'       => 'required',
             'penulis'     => 'required',
             'stok'        => 'required|integer|min:0',
             'id_kategori' => 'required',
+            'gambar'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
-        \App\Models\Buku::findOrFail($id)->update($request->all());
+
+        $buku = \App\Models\Buku::findOrFail($id);
+        $data = $request->except(['gambar', 'id_kategori', '_token', '_method', 'hapus_gambar']);
+
+        if ($request->hasFile('gambar')) {
+            if ($buku->gambar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($buku->gambar);
+            }
+            $data['gambar'] = $request->file('gambar')->store('buku', 'public');
+        } elseif ($request->input('hapus_gambar') == '1') {
+            if ($buku->gambar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($buku->gambar);
+            }
+            $data['gambar'] = null;
+        }
+
+        $buku->update($data);
+
+        if ($request->id_kategori) {
+            $buku->kategori()->sync(
+                is_array($request->id_kategori) ? $request->id_kategori : [$request->id_kategori]
+            );
+        }
+
         return redirect()->route('petugas.buku.index')->with('sukses', 'Buku berhasil diupdate!');
     })->name('buku.update');
 
     Route::delete('/buku/{id}', function ($id) {
-        \App\Models\Buku::findOrFail($id)->delete();
+        $buku = \App\Models\Buku::findOrFail($id);
+        if ($buku->gambar) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($buku->gambar);
+        }
+        $buku->kategori()->detach();
+        $buku->delete();
         return redirect()->route('petugas.buku.index')->with('sukses', 'Buku berhasil dihapus!');
     })->name('buku.destroy');
 
     Route::get('/peminjaman', function () {
         $peminjaman = \App\Models\Peminjaman::with(['buku', 'user'])->latest()->get();
-        return view('petugas.peminjaman.index', compact('peminjaman'));
+        return view('admin.petugas.peminjaman.index', compact('peminjaman'));
     })->name('peminjaman.index');
 
     Route::patch('/peminjaman/{id}/approve', function ($id) {
@@ -341,7 +386,7 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
                         ->where('status', 'dipinjam')
                         ->orderBy('tanggal_kembali', 'asc')
                         ->get();
-        return view('petugas.pengembalian.index', compact('peminjaman'));
+        return view('admin.petugas.pengembalian.index', compact('peminjaman'));
     })->name('pengembalian.index');
 
     Route::patch('/pengembalian/{id}', function ($id) {
@@ -378,8 +423,16 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
                     });
 
         $totalDenda = $denda->sum('total_denda');
-        return view('petugas.denda.index', compact('denda', 'totalDenda'));
+        return view('admin.petugas.denda.index', compact('denda', 'totalDenda'));
     })->name('denda.index');
+
+    Route::patch('/denda/{id}/lunas', function ($id) {
+        \App\Models\Peminjaman::findOrFail($id)->update([
+            'status'               => 'dikembalikan',
+            'tanggal_dikembalikan' => now(),
+        ]);
+        return back()->with('sukses', 'Denda berhasil ditandai lunas!');
+    })->name('denda.lunas');
 
 });
 

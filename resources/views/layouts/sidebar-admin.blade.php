@@ -78,59 +78,48 @@
     {{-- NAVIGASI --}}
     <ul class="nav nav-pills flex-column gap-2">
         <li>
-            <a href="{{ route('admin.dashboard') }}"
-               class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-chart-line me-3"></i>Dashboard
             </a>
         </li>
-
-        {{-- Akses petugas juga bisa dari admin --}}
         <li class="mt-2">
             <small class="text-muted fw-semibold px-3" style="font-size:10px;letter-spacing:1px;">MANAJEMEN BUKU</small>
         </li>
         <li>
-            <a href="{{ route('petugas.buku.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.buku.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.buku.index') }}" class="nav-link {{ request()->routeIs('petugas.buku.*') ? 'active' : '' }}">
                 <i class="fas fa-book me-3"></i>Kelola Buku
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.peminjaman.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.peminjaman.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.peminjaman.index') }}" class="nav-link {{ request()->routeIs('petugas.peminjaman.*') ? 'active' : '' }}">
                 <i class="fas fa-clipboard-list me-3"></i>Peminjaman
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.pengembalian.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.pengembalian.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.pengembalian.index') }}" class="nav-link {{ request()->routeIs('petugas.pengembalian.*') ? 'active' : '' }}">
                 <i class="fas fa-undo me-3"></i>Pengembalian
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.denda.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.denda.index') }}" class="nav-link {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
                 <i class="fas fa-wallet me-3"></i>Denda
             </a>
         </li>
-
         <li class="mt-2">
             <small class="text-muted fw-semibold px-3" style="font-size:10px;letter-spacing:1px;">MANAJEMEN USER</small>
         </li>
         <li>
-            <a href="{{ route('admin.users.index') }}"
-               class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="fas fa-users me-3"></i>Kelola Peminjam
             </a>
         </li>
         <li>
-            <a href="{{ route('admin.petugas.index') }}"
-               class="nav-link {{ request()->routeIs('admin.petugas.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.petugas.index') }}" class="nav-link {{ request()->routeIs('admin.petugas.*') ? 'active' : '' }}">
                 <i class="fas fa-user-tie me-3"></i>Kelola Petugas
             </a>
         </li>
         <li>
-            <a href="{{ route('admin.laporan.index') }}"
-               class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.laporan.index') }}" class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                 <i class="fas fa-chart-bar me-3"></i>Laporan
             </a>
         </li>
@@ -138,13 +127,13 @@
 
     {{-- LOGOUT --}}
     <div class="border-top pt-3 mt-auto">
-        <a href="#" class="nav-link text-danger"
-           onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
+        <a href="#" class="nav-link text-danger" onclick="konfirmasiLogout(event, 'logout-form-admin')">
             <i class="fas fa-power-off me-3"></i>Logout
         </a>
         <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" style="display:none;">
             @csrf
         </form>
     </div>
+
 
 </aside>

@@ -25,41 +25,49 @@
                                 ->implode('');
                 @endphp
 
-                <div style="
-                    width: 100%;
-                    height: 100%;
-                    background: {{ $warna }};
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                ">
+                @if($buku->gambar)
+                    {{-- Tampilkan gambar dari storage --}}
+                    <img src="{{ asset('storage/' . $buku->gambar) }}"
+                         alt="{{ $buku->judul }}"
+                         class="book-cover">
+                @else
+                    {{-- Fallback: gradient + inisial --}}
                     <div style="
-                        width: 70px;
-                        height: 70px;
-                        background: rgba(255,255,255,0.2);
-                        border-radius: 50%;
+                        width: 100%;
+                        height: 100%;
+                        background: {{ $warna }};
                         display: flex;
+                        flex-direction: column;
                         align-items: center;
                         justify-content: center;
-                        font-size: 26px;
-                        font-weight: 700;
-                        color: #fff;
-                        letter-spacing: 1px;
+                        gap: 10px;
                     ">
-                        {{ $inisial }}
+                        <div style="
+                            width: 70px;
+                            height: 70px;
+                            background: rgba(255,255,255,0.2);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 26px;
+                            font-weight: 700;
+                            color: #fff;
+                            letter-spacing: 1px;
+                        ">
+                            {{ $inisial }}
+                        </div>
+                        <div style="
+                            color: rgba(255,255,255,0.8);
+                            font-size: 11px;
+                            font-weight: 500;
+                            letter-spacing: 1px;
+                            text-transform: uppercase;
+                        ">
+                            {{ $kategori }}
+                        </div>
                     </div>
-                    <div style="
-                        color: rgba(255,255,255,0.8);
-                        font-size: 11px;
-                        font-weight: 500;
-                        letter-spacing: 1px;
-                        text-transform: uppercase;
-                    ">
-                        {{ $kategori }}
-                    </div>
-                </div>
+                @endif
             </div>
 
             <div class="card-body d-flex flex-column">

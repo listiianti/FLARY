@@ -6,19 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('buku', function (Blueprint $table) {
-            $table->integer('stok')->default(0)->after('penulis');
-            $table->text('deskripsi')->nullable()->after('stok');
-            $table->unsignedBigInteger('id_kategori')->nullable()->after('deskripsi');
+            //
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('buku', function (Blueprint $table) {
-            $table->dropColumn(['stok', 'deskripsi', 'id_kategori']);
+            //
         });
     }
 };

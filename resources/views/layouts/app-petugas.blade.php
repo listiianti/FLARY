@@ -1,107 +1,59 @@
-@extends('layouts.app-petugas')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title') - Flary Petugas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6200ea, #9d4edd);
+            --bg-gradient: linear-gradient(135deg, #f3f0ff 0%, #fff0f5 50%, #e8f5e9 100%);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(233,236,239,.5);
+        }
+        .nav-link {
+            color: #495057;
+            font-weight: 500;
+            padding: 12px 20px !important;
+            border-radius: 12px;
+            transition: .3s;
+        }
+        .nav-link:hover {
+            background: rgba(0,0,0,.05);
+            transform: translateX(4px);
+        }
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(98,0,234,.2);
+        }
+        main { flex: 1; padding: 40px; }
+    </style>
+</head>
+<body>
 
-@section('title', 'Kelola Denda')
-
-@section('content')
-<style>
-    .stat-card {
-        border: none; border-radius: 16px;
-        background: rgba(255,255,255,0.9) !important;
-        backdrop-filter: blur(5px);
-    }
-    .table-container {
-        background: rgba(255,255,255,0.9);
-        backdrop-filter: blur(5px);
-        border-radius: 16px;
-        border: 1px solid rgba(233,236,239,0.6);
-    }
-</style>
-
-<div class="container-fluid">
-
-    <header class="mb-5">
-        <h2 class="h3 fw-bold text-dark mb-1">Kelola Denda</h2>
-        <p class="text-muted small mb-0">Daftar peminjam yang memiliki denda keterlambatan.</p>
-    </header>
-
-    {{-- TOTAL DENDA --}}
-    <div class="row g-4 mb-5">
-        <div class="col-12 col-md-4">
-            <div class="card stat-card shadow-sm p-3">
-                <div class="card-body d-flex justify-content-between align-items-center p-2">
-                    <div>
-                        <span class="d-block h4 fw-bold text-dark mb-1">
-                            Rp {{ number_format($totalDenda, 0, ',', '.') }}
-                        </span>
-                        <p class="text-muted small mb-0 fw-medium">Total Denda Tertunggak</p>
-                    </div>
-                    <div style="width:60px;height:60px;border-radius:14px;" class="d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger fs-4">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card stat-card shadow-sm p-3">
-                <div class="card-body d-flex justify-content-between align-items-center p-2">
-                    <div>
-                        <span class="d-block h4 fw-bold text-dark mb-1">{{ $denda->count() }}</span>
-                        <p class="text-muted small mb-0 fw-medium">Jumlah Kasus Denda</p>
-                    </div>
-                    <div style="width:60px;height:60px;border-radius:14px;" class="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning fs-4">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if(session('sukses'))
-        <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">
-            <i class="fas fa-check-circle me-2"></i>{{ session('sukses') }}
-        </div>
-    @endif
-
-    <div class="table-container p-4 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="small text-muted">
-                        <th>#</th>
-                        <th>Peminjam</th>
-                        <th>Judul Buku</th>
-                        <th>Batas Kembali</th>
-                        <th>Hari Terlambat</th>
-                        <th>Total Denda</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody class="small">
-                    @forelse($denda as $i => $item)
-                    <tr>
-                        <td>{{ $i + 1 }}</td>
-                        <td class="fw-bold">{{ $item->user->name ?? '-' }}</td>
-                        <td>{{ $item->buku->judul ?? '-' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal_kembali)->translatedFormat('d M Y') }}</td>
-                        <td><span class="badge bg-danger rounded-pill">{{ $item->hari_terlambat }} hari</span></td>
-                        <td class="fw-bold text-danger">Rp {{ number_format($item->total_denda, 0, ',', '.') }}</td>
-                        <td>
-                            @if($item->status === 'terlambat')
-                                <span class="badge bg-danger rounded-pill">Belum Kembali</span>
-                            @else
-                                <span class="badge bg-warning text-dark rounded-pill">Sudah Kembali</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-3">Tidak ada denda tertunggak.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
+<div class="d-flex">
+    @include('layouts.sidebar-petugas')
+    <main>
+        @yield('content')
+    </main>
 </div>
-@endsection
+
+@include('layouts.modal-logout')
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

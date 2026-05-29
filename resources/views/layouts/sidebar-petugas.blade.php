@@ -5,7 +5,7 @@
         <a href="{{ route('petugas.dashboard') }}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" style="height:80px; width:auto;">
               <defs>
-                <linearGradient id="fgs" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="fgp" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" style="stop-color:#a855f7"/>
                   <stop offset="100%" style="stop-color:#ec4899"/>
                 </linearGradient>
@@ -50,12 +50,12 @@
                 <line x1="125" y1="75" x2="132" y2="73" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
                 <path d="M88 93 Q100 103 112 93" fill="none" stroke="#c94040" stroke-width="2.5" stroke-linecap="round"/>
               </g>
-              <text x="125" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="44" font-weight="700" fill="url(#fgs)">Flary</text>
+              <text x="125" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="44" font-weight="700" fill="url(#fgp)">Flary</text>
               <text x="128" y="88" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="400" fill="#888888" letter-spacing="4">DIGITAL LIBRARY</text>
             </svg>
         </a>
         <div class="mt-1">
-            <span class="badge rounded-pill px-3 py-1" style="background: linear-gradient(135deg,#6200ea,#9d4edd); font-size:11px;">
+            <span class="badge rounded-pill px-3 py-1" style="background:linear-gradient(135deg,#6200ea,#9d4edd);font-size:11px;">
                 <i class="fas fa-id-badge me-1"></i> Petugas
             </span>
         </div>
@@ -69,7 +69,7 @@
         </div>
         <div>
             <strong class="d-block small fw-bold text-dark">{{ Auth::user()->name ?? 'Petugas' }}</strong>
-            <span class="badge bg-purple-subtle text-purple border rounded-pill" style="font-size:10px;background:#f3e8ff;color:#6200ea;">
+            <span class="badge rounded-pill" style="font-size:10px;background:#f3e8ff;color:#6200ea;">
                 Petugas Aktif
             </span>
         </div>
@@ -78,32 +78,27 @@
     {{-- NAVIGASI --}}
     <ul class="nav nav-pills flex-column gap-2">
         <li>
-            <a href="{{ route('petugas.dashboard') }}"
-               class="nav-link {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('petugas.dashboard') }}" class="nav-link {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-chart-pie me-3"></i>Dashboard
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.buku.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.buku.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.buku.index') }}" class="nav-link {{ request()->routeIs('petugas.buku.*') ? 'active' : '' }}">
                 <i class="fas fa-book me-3"></i>Kelola Buku
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.peminjaman.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.peminjaman.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.peminjaman.index') }}" class="nav-link {{ request()->routeIs('petugas.peminjaman.*') ? 'active' : '' }}">
                 <i class="fas fa-clipboard-list me-3"></i>Peminjaman
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.pengembalian.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.pengembalian.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.pengembalian.index') }}" class="nav-link {{ request()->routeIs('petugas.pengembalian.*') ? 'active' : '' }}">
                 <i class="fas fa-undo me-3"></i>Pengembalian
             </a>
         </li>
         <li>
-            <a href="{{ route('petugas.denda.index') }}"
-               class="nav-link {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.denda.index') }}" class="nav-link {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
                 <i class="fas fa-wallet me-3"></i>Denda
             </a>
         </li>
@@ -111,13 +106,13 @@
 
     {{-- LOGOUT --}}
     <div class="border-top pt-3 mt-auto">
-        <a href="#" class="nav-link text-danger"
-           onclick="event.preventDefault(); document.getElementById('logout-form-petugas').submit();">
+        <a href="#" class="nav-link text-danger" onclick="konfirmasiLogout(event, 'logout-form-petugas')">
             <i class="fas fa-power-off me-3"></i>Logout
         </a>
         <form id="logout-form-petugas" action="{{ route('logout') }}" method="POST" style="display:none;">
             @csrf
         </form>
     </div>
+
 
 </aside>
