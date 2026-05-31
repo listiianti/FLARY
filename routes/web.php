@@ -142,6 +142,14 @@ Route::middleware(['auth', 'role:peminjam'])->group(function () {
             'durasi'         => 'required|integer|in:3,7,14',
         ]);
 
+        $buku = Buku::findOrFail($id);
+
+        // Cek stok
+        if ($buku->stok <= 0) {
+            return redirect()->route('buku.show', $id)
+                             ->with('error_pinjam', 'Stok buku habis! Silakan cek lagi nanti.');
+        }
+
         $jumlahDipinjam = \App\Models\Peminjaman::where('id_user', Auth::id())
                             ->where('status', 'dipinjam')
                             ->count();
@@ -162,6 +170,9 @@ Route::middleware(['auth', 'role:peminjam'])->group(function () {
             'tanggal_kembali' => $tanggalKembali,
             'status'          => 'dipinjam',
         ]);
+
+        // Kurangi stok
+        $buku->decrement('stok');
 
         return redirect()->route('buku.show', $id)
                          ->with('sukses_pinjam', 'Buku berhasil dipinjam! Kembalikan sebelum ' . \Carbon\Carbon::parse($tanggalKembali)->translatedFormat('d F Y') . '.');
@@ -287,7 +298,6 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
         return view('admin.petugas.buku.create', compact('kategoris'));
     })->name('buku.create');
 
-    // ✅ FIX: store dengan handle upload gambar
     Route::post('/buku', function (\Illuminate\Http\Request $request) {
         $request->validate([
             'judul'       => 'required',
@@ -320,7 +330,6 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
         return view('admin.petugas.buku.edit', compact('buku', 'kategoris'));
     })->name('buku.edit');
 
-    // ✅ FIX: update dengan handle upload & hapus gambar
     Route::put('/buku/{id}', function (\Illuminate\Http\Request $request, $id) {
         $request->validate([
             'judul'       => 'required',
@@ -390,7 +399,7 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
     })->name('pengembalian.index');
 
     Route::patch('/pengembalian/{id}', function ($id) {
-        $item = \App\Models\Peminjaman::findOrFail($id);
+        $item = \App\Models\Peminjaman::with('buku')->findOrFail($id);
         $batasKembali   = \Carbon\Carbon::parse($item->tanggal_kembali)->startOfDay();
         $tanggalKembali = \Carbon\Carbon::now()->startOfDay();
         $hariTerlambat  = (int) $batasKembali->diffInDays($tanggalKembali, false);
@@ -399,6 +408,12 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
             'status'               => $hariTerlambat > 0 ? 'terlambat' : 'dikembalikan',
             'tanggal_dikembalikan' => now(),
         ]);
+
+        // Tambah stok kembali
+        if ($item->buku) {
+            $item->buku->increment('stok');
+        }
+
         return back()->with('sukses', 'Pengembalian berhasil dicatat!');
     })->name('pengembalian.catat');
 
@@ -427,10 +442,17 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petu
     })->name('denda.index');
 
     Route::patch('/denda/{id}/lunas', function ($id) {
-        \App\Models\Peminjaman::findOrFail($id)->update([
+        $item = \App\Models\Peminjaman::with('buku')->findOrFail($id);
+        $item->update([
             'status'               => 'dikembalikan',
             'tanggal_dikembalikan' => now(),
         ]);
+
+        // Tambah stok kembali
+        if ($item->buku) {
+            $item->buku->increment('stok');
+        }
+
         return back()->with('sukses', 'Denda berhasil ditandai lunas!');
     })->name('denda.lunas');
 
@@ -491,22 +513,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     })->name('petugas.create');
 
     Route::post('/petugas', function (\Illuminate\Http\Request $request) {
-        $request->validate([
-            'nama'     => 'required',
-            'email'    => 'required|email|unique:users,email',
-            'username' => 'required|unique:users,username',
-            'password' => 'required|min:8',
-            'alamat'   => 'required',
-        ]);
+            $request->validate([
+                'nama'     => 'required',
+                'email'    => 'required|email|unique:users,email',
+                'username' => 'required|unique:users,username',
+                'password' => 'required|min:8|confirmed', // ✅ tambah confirmed
+                'alamat'   => 'required',
+            ]);
 
-        \App\Models\User::create([
-            'name'     => $request->nama,
-            'email'    => $request->email,
-            'username' => $request->username,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'alamat'   => $request->alamat,
-            'role'     => 'petugas',
-        ]);
+            \App\Models\User::create([
+                'name'     => $request->nama,
+                'email'    => $request->email,
+                'username' => $request->username,
+                'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                'alamat'   => $request->alamat,
+                'role'     => 'petugas',
+            ]);
 
         return redirect()->route('admin.petugas.index')->with('sukses', 'Petugas berhasil ditambahkan!');
     })->name('petugas.store');

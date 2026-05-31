@@ -208,19 +208,17 @@
         Kembali ke Daftar Buku
     </a>
 
-    {{-- SUKSES PINJAM --}}
+    {{-- NOTIF SUKSES PINJAM --}}
     @if(session('sukses_pinjam'))
         <div class="alert alert-success rounded-3 mb-4">
-            <i class="fas fa-check-circle me-2"></i>
-            {{ session('sukses_pinjam') }}
+            <i class="fas fa-check-circle me-2"></i>{{ session('sukses_pinjam') }}
         </div>
     @endif
 
-    {{-- ERROR PINJAM --}}
+    {{-- NOTIF ERROR PINJAM --}}
     @if(session('error_pinjam'))
         <div class="alert alert-danger rounded-3 mb-4">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            {{ session('error_pinjam') }}
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error_pinjam') }}
         </div>
     @endif
 
@@ -230,72 +228,112 @@
 
             {{-- COVER BUKU --}}
             <div class="col-md-4 text-center">
-                <img
-                    src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=800"
-                    class="book-cover-detail"
-                    alt="{{ $buku->judul }}"
-                >
+                @php
+                    $kategori = $buku->kategori->first()->nama_kategori ?? 'Umum';
+                    $warna = match($kategori) {
+                        'Teknologi'  => 'linear-gradient(135deg, #6200ea, #9d4edd)',
+                        'Fiksi'      => 'linear-gradient(135deg, #e91e63, #f06292)',
+                        'Non-Fiksi'  => 'linear-gradient(135deg, #0288d1, #4fc3f7)',
+                        'Sains'      => 'linear-gradient(135deg, #2e7d32, #66bb6a)',
+                        'Sejarah'    => 'linear-gradient(135deg, #e65100, #ffa726)',
+                        'Pendidikan' => 'linear-gradient(135deg, #00838f, #4dd0e1)',
+                        'Bisnis'     => 'linear-gradient(135deg, #4527a0, #7c4dff)',
+                        default      => 'linear-gradient(135deg, #455a64, #90a4ae)',
+                    };
+                    $inisial = collect(explode(' ', $buku->judul))
+                                ->take(2)
+                                ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                                ->implode('');
+                @endphp
+
+                @if($buku->gambar)
+                    <img src="{{ asset('storage/' . $buku->gambar) }}"
+                         class="book-cover-detail"
+                         alt="{{ $buku->judul }}">
+                @else
+                    <div style="
+                        width:100%;height:380px;
+                        background:{{ $warna }};
+                        border-radius:16px;
+                        box-shadow:0 15px 40px rgba(0,0,0,0.15);
+                        display:flex;flex-direction:column;
+                        align-items:center;justify-content:center;gap:12px;
+                    ">
+                        <div style="
+                            width:80px;height:80px;
+                            background:rgba(255,255,255,0.2);
+                            border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;
+                            font-size:30px;font-weight:700;color:#fff;
+                        ">{{ $inisial }}</div>
+                        <div style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">
+                            {{ $kategori }}
+                        </div>
+                    </div>
+                @endif
+
                 <div class="mt-3">
-                    <span class="category-pill">
-                        {{ $buku->kategori->first()->nama_kategori ?? 'Umum' }}
-                    </span>
+                    <span class="category-pill">{{ $kategori }}</span>
+                    <div class="mt-2">
+                        @if($buku->stok > 0)
+                            <span class="badge bg-success rounded-pill">{{ $buku->stok }} tersedia</span>
+                        @else
+                            <span class="badge bg-danger rounded-pill">Stok Habis</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
             {{-- INFO BUKU --}}
             <div class="col-md-8">
 
-                <h2 class="fw-bold mb-1" style="font-family: 'Poppins', sans-serif;">
+                <h2 class="fw-bold mb-1" style="font-family:'Poppins',sans-serif;">
                     {{ $buku->judul }}
                 </h2>
-
                 <p class="text-muted mb-4">
                     oleh <span class="fw-semibold text-dark">{{ $buku->penulis }}</span>
                 </p>
 
                 <div class="mb-4">
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="fas fa-user-edit me-2 text-primary"></i> Penulis
-                        </span>
+                        <span class="info-label"><i class="fas fa-user-edit me-2 text-primary"></i>Penulis</span>
                         <span class="info-value">{{ $buku->penulis }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="fas fa-building me-2 text-primary"></i> Penerbit
-                        </span>
-                        <span class="info-value">{{ $buku->penerbit }}</span>
+                        <span class="info-label"><i class="fas fa-building me-2 text-primary"></i>Penerbit</span>
+                        <span class="info-value">{{ $buku->penerbit ?? '-' }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="fas fa-calendar me-2 text-primary"></i> Tahun Terbit
-                        </span>
-                        <span class="info-value">{{ $buku->tahun_terbit }}</span>
+                        <span class="info-label"><i class="fas fa-calendar me-2 text-primary"></i>Tahun Terbit</span>
+                        <span class="info-value">{{ $buku->tahun_terbit ?? '-' }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="fas fa-tag me-2 text-primary"></i> Kategori
-                        </span>
+                        <span class="info-label"><i class="fas fa-tag me-2 text-primary"></i>Kategori</span>
+                        <span class="info-value">{{ $kategori }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-cubes me-2 text-primary"></i>Stok</span>
                         <span class="info-value">
-                            {{ $buku->kategori->first()->nama_kategori ?? 'Umum' }}
+                            @if($buku->stok > 0)
+                                <span class="badge bg-success rounded-pill">{{ $buku->stok }} tersedia</span>
+                            @else
+                                <span class="badge bg-danger rounded-pill">Stok Habis</span>
+                            @endif
                         </span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="fas fa-star me-2 text-warning"></i> Rating
-                        </span>
+                        <span class="info-label"><i class="fas fa-star me-2 text-warning"></i>Rating</span>
                         <span class="info-value">
                             @if($buku->ulasan && $buku->ulasan->count() > 0)
                                 @php $avgRating = round($buku->ulasan->avg('rating'), 1); @endphp
                                 @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= $avgRating ? 'text-warning' : 'text-muted' }}"
-                                       style="font-size: 14px;"></i>
+                                    <i class="fas fa-star {{ $i <= $avgRating ? 'text-warning' : 'text-muted' }}" style="font-size:14px;"></i>
                                 @endfor
-                                <span class="ms-1 text-muted" style="font-size: 13px;">
+                                <span class="ms-1 text-muted" style="font-size:13px;">
                                     ({{ $avgRating }}/5 dari {{ $buku->ulasan->count() }} ulasan)
                                 </span>
                             @else
-                                <span class="text-muted" style="font-size: 13px;">Belum ada rating</span>
+                                <span class="text-muted" style="font-size:13px;">Belum ada rating</span>
                             @endif
                         </span>
                     </div>
@@ -309,10 +347,18 @@
                                                 ->where('status', 'dipinjam')
                                                 ->count();
                         @endphp
-                        @if($jumlahDipinjam >= 5)
-                            <button class="btn-pinjam" disabled style="opacity:0.6; cursor:not-allowed; background: #aaa;">
-                                <i class="fas fa-ban me-2"></i>
-                                Batas Pinjam Tercapai
+
+                        @if($buku->stok <= 0)
+                            <button class="btn-pinjam" disabled style="opacity:0.6;cursor:not-allowed;background:#aaa;">
+                                <i class="fas fa-times-circle me-2"></i>Stok Habis
+                            </button>
+                            <div class="alert alert-warning rounded-3 mt-2 p-2 small">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Stok buku ini sedang habis. Silakan cek lagi nanti.
+                            </div>
+                        @elseif($jumlahDipinjam >= 5)
+                            <button class="btn-pinjam" disabled style="opacity:0.6;cursor:not-allowed;background:#aaa;">
+                                <i class="fas fa-ban me-2"></i>Batas Pinjam Tercapai
                             </button>
                         @else
                             <a href="{{ route('pinjam.form', $buku->id) }}" class="btn-pinjam">
@@ -329,31 +375,26 @@
                         @endphp
 
                         @if($sudahDikoleksi)
-                            <button class="btn-koleksi" disabled style="opacity:0.6; cursor:not-allowed;">
-                                <i class="fas fa-heart me-2"></i>
-                                Sudah di Koleksi
+                            <button class="btn-koleksi" disabled style="opacity:0.6;cursor:not-allowed;">
+                                <i class="fas fa-heart me-2"></i>Sudah di Koleksi
                             </button>
                         @else
                             <form action="{{ route('koleksi.store', $buku->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn-koleksi">
-                                    <i class="fas fa-heart me-2"></i>
-                                    Tambah ke Koleksi
+                                    <i class="fas fa-heart me-2"></i>Tambah ke Koleksi
                                 </button>
                             </form>
                         @endif
 
                         @if(session('sukses_koleksi'))
                             <small class="text-success d-block mt-2">
-                                <i class="fas fa-check-circle me-1"></i>
-                                {{ session('sukses_koleksi') }}
+                                <i class="fas fa-check-circle me-1"></i>{{ session('sukses_koleksi') }}
                             </small>
                         @endif
-
                         @if(session('error_koleksi'))
                             <small class="text-danger d-block mt-2">
-                                <i class="fas fa-exclamation-circle me-1"></i>
-                                {{ session('error_koleksi') }}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ session('error_koleksi') }}
                             </small>
                         @endif
                     </div>
@@ -368,29 +409,18 @@
         {{-- FORM TULIS ULASAN --}}
         <div class="col-md-5">
             <div class="form-ulasan p-4">
-
                 <h5 class="fw-bold mb-4">
-                    <i class="fas fa-pen text-primary me-2"></i>
-                    Tulis Ulasan
+                    <i class="fas fa-pen text-primary me-2"></i>Tulis Ulasan
                 </h5>
 
                 @if(session('sukses_ulasan'))
                     <div class="alert alert-success rounded-3 mb-3">
-                        <i class="fas fa-check-circle me-2"></i>
-                        {{ session('sukses_ulasan') }}
-                    </div>
-                @endif
-
-                @if(session('error_ulasan'))
-                    <div class="alert alert-danger rounded-3 mb-3">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        {{ session('error_ulasan') }}
+                        <i class="fas fa-check-circle me-2"></i>{{ session('sukses_ulasan') }}
                     </div>
                 @endif
 
                 <form action="{{ route('ulasan.store', $buku->id) }}" method="POST">
                     @csrf
-
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Rating</label>
                         <div class="star-rating">
@@ -409,24 +439,17 @@
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Ulasan Kamu</label>
-                        <textarea
-                            name="ulasan"
-                            class="form-control"
-                            rows="5"
+                        <textarea name="ulasan" class="form-control" rows="5"
                             placeholder="Bagikan pendapatmu tentang buku ini...">{{ old('ulasan') }}</textarea>
                         @error('ulasan')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-
                     <button type="submit" class="btn-kirim-ulasan w-100">
-                        <i class="fas fa-paper-plane me-2"></i>
-                        Kirim Ulasan
+                        <i class="fas fa-paper-plane me-2"></i>Kirim Ulasan
                     </button>
-
                 </form>
             </div>
         </div>
@@ -434,13 +457,10 @@
         {{-- DAFTAR ULASAN --}}
         <div class="col-md-7">
             <div class="detail-card p-4">
-
                 <h5 class="fw-bold mb-4">
                     <i class="fas fa-comments text-warning me-2"></i>
                     Ulasan Pembaca
-                    <span class="badge bg-primary-subtle text-primary ms-2">
-                        {{ $buku->ulasan->count() }}
-                    </span>
+                    <span class="badge bg-primary-subtle text-primary ms-2">{{ $buku->ulasan->count() }}</span>
                 </h5>
 
                 @if($buku->ulasan && $buku->ulasan->count() > 0)
@@ -458,8 +478,7 @@
                                         </div>
                                         <div>
                                             @for($i = 1; $i <= 5; $i++)
-                                                <i class="fas fa-star {{ $i <= $ulasan->rating ? 'text-warning' : 'text-muted' }}"
-                                                   style="font-size: 12px;"></i>
+                                                <i class="fas fa-star {{ $i <= $ulasan->rating ? 'text-warning' : 'text-muted' }}" style="font-size:12px;"></i>
                                             @endfor
                                         </div>
                                     </div>
@@ -470,11 +489,10 @@
                     @endforeach
                 @else
                     <div class="text-center py-5 text-muted">
-                        <i class="fas fa-comment-slash mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-comment-slash mb-3" style="font-size:2.5rem;opacity:0.3;"></i>
                         <p class="mb-0">Belum ada ulasan. Jadilah yang pertama!</p>
                     </div>
                 @endif
-
             </div>
         </div>
 

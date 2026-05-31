@@ -14,13 +14,16 @@ class CheckRole
             return redirect('/login');
         }
 
-        if (!in_array(auth()->user()->role, $roles)) {
-            // Kalau role tidak sesuai, redirect ke halaman masing-masing
-            $role = auth()->user()->role;
+        $userRole = trim(auth()->user()->role); // tambah trim()
 
-            if ($role === 'admin') return redirect('/admin/dashboard');
-            if ($role === 'petugas') return redirect('/petugas/dashboard');
-            return redirect('/beranda');
+        if (!in_array($userRole, $roles)) {
+            match($userRole) {
+                'admin'    => redirect('/admin/dashboard')->send(),
+                'petugas'  => redirect('/petugas/dashboard')->send(),
+                'peminjam' => redirect('/beranda')->send(),
+                default    => abort(403),
+            };
+            exit;
         }
 
         return $next($request);

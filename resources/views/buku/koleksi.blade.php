@@ -116,8 +116,13 @@
                             <span class="category-badge">
                                 {{ $item->buku->kategori->first()->nama_kategori ?? 'Umum' }}
                             </span>
-                            <img src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=800"
-                                 class="book-cover" alt="{{ $item->buku->judul }}">
+                            @if($item->buku->gambar)
+                                <img src="{{ asset('storage/' . $item->buku->gambar) }}"
+                                     class="book-cover" alt="{{ $item->buku->judul }}">
+                            @else
+                                <img src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=800"
+                                     class="book-cover" alt="{{ $item->buku->judul }}">
+                            @endif
                         </div>
 
                         <div class="card-body d-flex flex-column">
@@ -152,7 +157,7 @@
     @else
         <div class="text-center py-5">
             <div class="p-5 rounded-4 bg-white shadow-sm d-inline-block">
-                <i class="fas fa-heart-broken text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+               <i class="fas fa-heart-broken text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
                 <p class="text-dark fw-medium mb-2">Koleksi kamu masih kosong</p>
                 <p class="text-muted small mb-4">Tambahkan buku favoritmu dari halaman Jelajah Buku</p>
                 <a href="{{ route('buku.index') }}"

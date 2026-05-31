@@ -14,7 +14,7 @@ class KoleksiPribadiController extends Controller
             ->where('id_user', Auth::id())
             ->get();
 
-        return response()->json($koleksi);
+        return view('koleksi', compact('koleksi'));
     }
 
     public function show($id)
@@ -51,10 +51,12 @@ class KoleksiPribadiController extends Controller
     public function destroy($id)
     {
         $koleksi = KoleksiPribadi::where('id_user', Auth::id())
-            ->findOrFail($id);
+            ->where('id_buku', $id)
+            ->firstOrFail();
 
         $koleksi->delete();
 
-        return response()->json(['message' => 'Koleksi berhasil dihapus']);
+        return redirect()->route('koleksi.index')
+            ->with('sukses_koleksi', 'Buku berhasil dihapus dari koleksi.');
     }
 }

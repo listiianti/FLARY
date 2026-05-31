@@ -29,12 +29,12 @@ class UserSeeder extends Seeder
             ]);
 
             User::create([
-                'name' => 'Budi Santoso',
-                'username' => 'budi',
-                'email' => 'budi@gmail.com',
+                'name'     => 'aaytiiidaarr',
+                'username' => 'aaytiii',
+                'email'    => 'aaytiii@gmail.com',
                 'password' => Hash::make('password'),
-                'alamat' => 'Jl. Peminjam No. 3',
-                'role' => 'peminjam',
+                'alamat'   => 'Jl. emtees No. 67',
+                'role'     => 'peminjam',
             ]);
     }
 }
